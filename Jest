@@ -1,0 +1,5 @@
+test('addRecord should insert new employee', async () => {
+    const mockData = { civil_id: '123456789', full_name: 'Test' };
+    const { data, error } = await addRecord(mockData);
+    expect(data).toHaveLength(1);
+});
