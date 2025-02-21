@@ -1,0 +1,7 @@
+document.getElementById('civilId').addEventListener('input', (e) => {
+    if (e.target.value.length !== 14) {
+        e.target.classList.add('invalid');
+    } else {
+        e.target.classList.remove('invalid');
+    }
+});
