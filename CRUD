@@ -1,0 +1,93 @@
+// إضافة سجل جديد
+async function addRecord() {
+  const { data, error } = await supabase
+    .from('employees')
+    .insert({
+      civil_id: document.getElementById('civilId').value,
+      full_name: document.getElementById('name').value,
+      specialty: document.getElementById('specialty').value,
+      current_job: document.getElementById('currentJob').value,
+      entry_date: document.getElementById('date').value,
+      delay_minutes: document.getElementById('delay').value
+    })
+    .select()
+
+  if (error) alert('حدث خطأ: ' + error.message)
+  else updateTable()
+}
+
+// عرض البيانات
+async function showData() {
+  const { data, error } = await supabase
+    .from('employees')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  if (!error) {
+    const tbody = document.querySelector('#dataTable tbody')
+    tbody.innerHTML = data.map(emp => `
+      <tr data-id="${emp.id}">
+        <td>${emp.civil_id}</td>
+        <td>${emp.full_name}</td>
+        <td>${emp.specialty}</td>
+        <td>${emp.delay_minutes}</td>
+        <td>
+          <button onclick="editRecord('${emp.id}')">✏️</button>
+          <button onclick="deleteRecord('${emp.id}')">🗑️</button>
+        </td>
+      </tr>
+    `).join('')
+  }
+}
+
+// التعديل
+async function editRecord(id) {
+  const { data, error } = await supabase
+    .from('employees')
+    .update({
+      delay_minutes: prompt('أدق القيمة الجديدة للتأخير:')
+    })
+    .eq('id', id)
+
+  if (!error) showData()
+}
+
+// الحذف
+async function deleteRecord(id) {
+  if (confirm('هل أنت متأكد من الحذف؟')) {
+    const { error } = await supabase
+      .from('employees')
+      .delete()
+      .eq('id', id)
+
+    if (!error) showData()
+  }
+}
+document.addEventListener('DOMContentLoaded', showData)
+
+function handleError(error) {
+  console.error('Error:', error)
+  alert(`حدث خطأ: ${error.message}`)
+}
+
+// استخدامها في جميع الدوال:
+async function showData() {
+  try {
+    // ...الكود السابق...
+  } catch (error) {
+    handleError(error)
+  }
+}// تسجيل الدخول
+async function login(email, password) {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  })
+
+  if (error) throw error
+  return data.user
+}// تحديث البيانات في الوقت الحقيقي
+const channel = supabase
+  .channel('employees')
+  .on('postgres_changes', { event: '*', schema: 'public' }, () => showData())
+  .subscribe()
