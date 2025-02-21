@@ -1,0 +1,6 @@
+const { data, error } = await supabase.auth.signInWithOtp({
+    email: 'user@example.com',
+    options: {
+        shouldCreateUser: false
+    }
+});
