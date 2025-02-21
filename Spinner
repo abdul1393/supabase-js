@@ -1,0 +1,14 @@
+function showLoader() {
+    document.getElementById('loader').style.display = 'block';
+}
+
+function hideLoader() {
+    document.getElementById('loader').style.display = 'none';
+}
+
+// مثال للاستخدام:
+async function fetchData() {
+    showLoader();
+    const data = await supabase.from('employees').select('*');
+    hideLoader();
+}
